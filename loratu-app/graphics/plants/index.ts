@@ -5,6 +5,8 @@ import { lavenderGraphics } from './lavender';
 import { sunflowerGraphics } from './sunflower';
 import { jasmineGraphics } from './jasmine';
 import { bougainvilleaGraphics } from './bougainvillea';
+import { tulipGraphics } from './tulip';
+import { oliveGraphics } from './olive';
 
 const PLANT_GRAPHICS_MAP: Record<string, PlantGraphics> = {
   geranium: geraniumGraphics,
@@ -13,6 +15,8 @@ const PLANT_GRAPHICS_MAP: Record<string, PlantGraphics> = {
   sunflower: sunflowerGraphics,
   jasmine: jasmineGraphics,
   bougainvillea: bougainvilleaGraphics,
+  tulip: tulipGraphics,
+  olive: oliveGraphics,
 };
 
 export function getPlantGraphics(speciesId: string): PlantGraphics | undefined {
