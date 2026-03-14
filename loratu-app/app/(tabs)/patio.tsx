@@ -1,7 +1,9 @@
 import { useState, useCallback } from 'react';
 import { View, Text, StyleSheet, Pressable, Modal, ScrollView } from 'react-native';
 import { useTranslation } from 'react-i18next';
+import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
+import * as Haptics from 'expo-haptics';
 import { colors, spacing, radius } from '../../constants/theme';
 import { useGameStore } from '../../stores/gameStore';
 import { CARE_COSTS } from '../../constants/gameConfig';
@@ -11,6 +13,7 @@ import PatioCanvas from '../../components/patio/PatioCanvas';
 
 export default function PatioScreen() {
   const { t } = useTranslation();
+  const router = useRouter();
   const resources = useGameStore(s => s.resources);
   const spots = useGameStore(s => s.spots);
   const plants = useGameStore(s => s.plants);
@@ -21,6 +24,12 @@ export default function PatioScreen() {
   const sunPlants = useGameStore(s => s.sunPlants);
 
   const [modalSpot, setModalSpot] = useState<number | null>(null);
+  const [toast, setToast] = useState<string | null>(null);
+
+  const showToast = (msg: string) => {
+    setToast(msg);
+    setTimeout(() => setToast(null), 2000);
+  };
 
   const hasPlanted = spots.some(s => s.plantId !== null);
 
@@ -53,23 +62,38 @@ export default function PatioScreen() {
   const handleSpotPress = useCallback((spotIndex: number) => {
     const spot = spots[spotIndex];
     if (spot?.plantId) {
-      // Plant info (future: open detail modal)
-      const plant = plants.find(p => p.id === spot.plantId);
-      if (plant) {
-        const species = getSpecies(plant.speciesId);
-        // For now just a simple feedback — later wire to plant/[id] modal
-      }
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      router.push(`/plant/${spot.plantId}`);
     } else {
-      // Open plant selection
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
       setModalSpot(spotIndex);
     }
-  }, [spots, plants]);
+  }, [spots, router]);
 
   const handlePlacePlant = (speciesId: string) => {
     if (modalSpot !== null) {
       placePlant(speciesId, modalSpot);
       setModalSpot(null);
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      const species = getSpecies(speciesId);
+      if (species) showToast(`🌱 ${t('patio.planted', { name: t(species.nameKey) })}`);
     }
+  };
+
+  const handleWater = () => {
+    const grew = waterPlants();
+    Haptics.impactAsync(grew ? Haptics.ImpactFeedbackStyle.Heavy : Haptics.ImpactFeedbackStyle.Medium);
+    showToast(grew ? `🌟 ${t('actions.plantGrew')}` : `💧 ${t('actions.watering')}`);
+  };
+  const handleFert = () => {
+    const grew = fertilizePlants();
+    Haptics.impactAsync(grew ? Haptics.ImpactFeedbackStyle.Heavy : Haptics.ImpactFeedbackStyle.Medium);
+    showToast(grew ? `🌟 ${t('actions.plantGrew')}` : `🌿 ${t('actions.fertilizing')}`);
+  };
+  const handleSun = () => {
+    const grew = sunPlants();
+    Haptics.impactAsync(grew ? Haptics.ImpactFeedbackStyle.Heavy : Haptics.ImpactFeedbackStyle.Medium);
+    showToast(grew ? `🌟 ${t('actions.plantGrew')}` : `☀️ ${t('actions.sunning')}`);
   };
 
   // Temporary emoji map for the selection modal
@@ -96,7 +120,7 @@ export default function PatioScreen() {
       <View style={styles.actions}>
         <Pressable
           style={[styles.ab, (!hasPlanted || resources.water < CARE_COSTS.water.water) && styles.abDisabled]}
-          onPress={() => waterPlants()}
+          onPress={handleWater}
           disabled={!hasPlanted || resources.water < CARE_COSTS.water.water}
         >
           <Text style={styles.abIcon}>💧</Text>
@@ -105,7 +129,7 @@ export default function PatioScreen() {
 
         <Pressable
           style={[styles.ab, (!hasPlanted || resources.fertilizer < CARE_COSTS.fertilize.fertilizer) && styles.abDisabled]}
-          onPress={() => fertilizePlants()}
+          onPress={handleFert}
           disabled={!hasPlanted || resources.fertilizer < CARE_COSTS.fertilize.fertilizer}
         >
           <Text style={styles.abIcon}>🌿</Text>
@@ -114,7 +138,7 @@ export default function PatioScreen() {
 
         <Pressable
           style={[styles.ab, (!hasPlanted || resources.sun < CARE_COSTS.sun.sun) && styles.abDisabled]}
-          onPress={() => sunPlants()}
+          onPress={handleSun}
           disabled={!hasPlanted || resources.sun < CARE_COSTS.sun.sun}
         >
           <Text style={styles.abIcon}>☀️</Text>
@@ -159,6 +183,12 @@ export default function PatioScreen() {
           </View>
         </Pressable>
       </Modal>
+      {/* Toast */}
+      {toast && (
+        <View style={styles.toast}>
+          <Text style={styles.toastText}>{toast}</Text>
+        </View>
+      )}
     </LinearGradient>
   );
 }
@@ -248,4 +278,17 @@ const styles = StyleSheet.create({
   invEmoji: { fontSize: 40, marginBottom: 4 },
   invName: { fontSize: 12, fontWeight: '700', color: colors.textPrimary },
   invCount: { fontSize: 10, color: colors.textMuted, marginTop: 2 },
+
+  // Toast
+  toast: {
+    position: 'absolute',
+    top: 100,
+    alignSelf: 'center',
+    backgroundColor: 'rgba(0,0,0,0.75)',
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 20,
+    zIndex: 999,
+  },
+  toastText: { color: 'white', fontSize: 13, fontWeight: '700' },
 });
