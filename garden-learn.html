@@ -1,0 +1,1582 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Jardín Sabio</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Baloo+2:wght@400;600;700;800&display=swap');
+
+  :root {
+    --cream: #FFF8F0;
+    --green-soft: #A8D5A2;
+    --green-mid: #6DBF67;
+    --green-dark: #3D8B37;
+    --pink: #FFB3C6;
+    --pink-dark: #FF85A1;
+    --yellow: #FFE066;
+    --yellow-dark: #F5C400;
+    --blue: #B3D9FF;
+    --blue-dark: #5AAFF5;
+    --brown: #C89B72;
+    --brown-dark: #8B6347;
+    --purple: #D4AAFF;
+    --orange: #FFCCA5;
+    --soil: #8B5E3C;
+    --soil-light: #A67C52;
+    --grass: #7CB342;
+    --grass-dark: #558B2F;
+    --stone: #B0A090;
+    --stone-dark: #8D7B6B;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: #4a8c3f;
+    min-height: 100vh;
+    overflow: hidden;
+    position: relative;
+    user-select: none;
+  }
+
+  #app {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+  }
+
+  /* ========= TOP BAR ========= */
+  .top-bar {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    padding: 8px 12px;
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    pointer-events: none;
+  }
+  .top-bar > * { pointer-events: all; }
+  .res-pill {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: rgba(0,0,0,0.55);
+    backdrop-filter: blur(8px);
+    border-radius: 20px;
+    padding: 5px 12px 5px 8px;
+    color: white;
+    font-size: 13px;
+    font-weight: 700;
+    border: 1.5px solid rgba(255,255,255,0.15);
+  }
+  .res-pill .ri { font-size: 16px; }
+
+  /* ========= PATIO ========= */
+  .patio-container {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+  }
+  .patio {
+    position: absolute;
+    width: 1200px;
+    height: 900px;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    /* The garden ground */
+  }
+
+  /* Grass background */
+  .patio-grass {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse at 30% 40%, #6aad3d 0%, transparent 50%),
+      radial-gradient(ellipse at 70% 60%, #5da035 0%, transparent 50%),
+      radial-gradient(ellipse at 50% 80%, #4a8c3f 0%, transparent 50%),
+      linear-gradient(180deg, #6aad3d 0%, #4a8c3f 50%, #3d7a32 100%);
+    border-radius: 40px;
+  }
+
+  /* Stone path */
+  .stone-path {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 120px;
+    height: 200px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding-top: 20px;
+  }
+  .stone {
+    width: 50px;
+    height: 24px;
+    background: var(--stone);
+    border-radius: 50%;
+    border: 2px solid var(--stone-dark);
+    box-shadow: 0 3px 0 var(--stone-dark);
+  }
+  .stone:nth-child(even) { margin-left: 20px; }
+  .stone:nth-child(odd) { margin-right: 20px; }
+
+  /* Fence */
+  .fence {
+    position: absolute;
+    top: 20px; left: 20px; right: 20px;
+    height: 60px;
+    display: flex;
+    gap: 0;
+    pointer-events: none;
+  }
+  .fence-post {
+    width: 16px;
+    height: 60px;
+    background: linear-gradient(90deg, #d4a76a, #c49660, #d4a76a);
+    border-radius: 3px 3px 0 0;
+    position: relative;
+    flex-shrink: 0;
+  }
+  .fence-post::after {
+    content: '';
+    position: absolute;
+    top: -6px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 20px;
+    height: 10px;
+    background: #d4a76a;
+    border-radius: 50% 50% 0 0;
+    border: 2px solid #b8864e;
+    border-bottom: none;
+  }
+  .fence-rail {
+    flex: 1;
+    position: relative;
+    min-width: 30px;
+  }
+  .fence-rail::before, .fence-rail::after {
+    content: '';
+    position: absolute;
+    left: 0; right: 0;
+    height: 10px;
+    background: #d4a76a;
+    border: 1.5px solid #b8864e;
+    border-radius: 2px;
+  }
+  .fence-rail::before { top: 10px; }
+  .fence-rail::after { top: 32px; }
+
+  /* Decorations */
+  .deco {
+    position: absolute;
+    font-size: 28px;
+    pointer-events: none;
+    filter: drop-shadow(0 2px 3px rgba(0,0,0,0.2));
+  }
+
+  /* ========= PLANT SPOTS ========= */
+  .spot {
+    position: absolute;
+    width: 90px;
+    height: 90px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    cursor: pointer;
+    transition: transform 0.2s;
+  }
+  .spot:hover { transform: scale(1.08); }
+  .spot:active { transform: scale(0.95); }
+
+  .spot-ground {
+    width: 80px;
+    height: 28px;
+    border-radius: 50%;
+    background: radial-gradient(ellipse, var(--soil-light) 30%, var(--soil) 100%);
+    border: 2.5px solid #6b4226;
+    box-shadow: 0 4px 0 #5a3520, inset 0 -4px 8px rgba(0,0,0,0.15);
+    position: relative;
+    flex-shrink: 0;
+  }
+
+  .spot-empty .spot-ground {
+    background: radial-gradient(ellipse, #9e7e5a 30%, #7a5c3a 100%);
+    border-style: dashed;
+    border-color: #a08060;
+    opacity: 0.6;
+  }
+  .spot-empty:hover .spot-ground {
+    opacity: 1;
+    border-color: var(--yellow-dark);
+    box-shadow: 0 0 12px rgba(255,224,102,0.5);
+  }
+
+  .spot-plant {
+    font-size: 48px;
+    line-height: 1;
+    filter: drop-shadow(0 3px 5px rgba(0,0,0,0.25));
+    transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    margin-bottom: -8px;
+  }
+  .spot-plant.stage-0 { font-size: 24px; margin-bottom: -4px; }
+  .spot-plant.stage-1 { font-size: 36px; margin-bottom: -6px; }
+  .spot-plant.stage-2 { font-size: 48px; }
+  .spot-plant.stage-3 { font-size: 56px; filter: drop-shadow(0 3px 5px rgba(0,0,0,0.25)) drop-shadow(0 0 8px rgba(255,224,102,0.4)); }
+
+  .spot-label {
+    font-size: 9px;
+    font-weight: 800;
+    color: white;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.6);
+    margin-top: 2px;
+    text-align: center;
+    max-width: 80px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .spot-level {
+    font-size: 8px;
+    color: var(--yellow);
+    text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+  }
+
+  .spot-plus {
+    font-size: 28px;
+    color: rgba(255,255,255,0.4);
+    margin-bottom: 4px;
+    transition: all 0.2s;
+  }
+  .spot-empty:hover .spot-plus { color: var(--yellow); transform: scale(1.2); }
+
+  /* Water animation */
+  @keyframes waterDrop {
+    0% { transform: translateY(-20px) scale(1); opacity: 1; }
+    100% { transform: translateY(10px) scale(0.5); opacity: 0; }
+  }
+  .water-anim {
+    position: absolute;
+    font-size: 20px;
+    pointer-events: none;
+    animation: waterDrop 0.6s ease-in forwards;
+  }
+
+  /* Growth sparkle */
+  @keyframes sparkle {
+    0% { transform: scale(0) rotate(0deg); opacity: 1; }
+    100% { transform: scale(1.5) rotate(180deg); opacity: 0; }
+  }
+  .sparkle {
+    position: absolute;
+    font-size: 16px;
+    pointer-events: none;
+    animation: sparkle 0.8s ease-out forwards;
+  }
+
+  /* ========= BOTTOM ACTION BAR ========= */
+  .action-bar {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    z-index: 100;
+    padding: 0 12px 12px;
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+  }
+  .action-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    background: rgba(0,0,0,0.6);
+    backdrop-filter: blur(8px);
+    border: 2px solid rgba(255,255,255,0.15);
+    border-radius: 16px;
+    padding: 10px 14px 8px;
+    cursor: pointer;
+    transition: all 0.15s;
+    color: white;
+    font-family: 'Nunito', sans-serif;
+    min-width: 64px;
+  }
+  .action-btn:hover { background: rgba(0,0,0,0.75); transform: translateY(-3px); }
+  .action-btn:active { transform: translateY(1px); }
+  .action-btn:disabled { opacity: 0.35; cursor: not-allowed; transform: none; }
+  .action-btn .ab-icon { font-size: 24px; }
+  .action-btn .ab-label { font-size: 10px; font-weight: 700; }
+  .action-btn .ab-cost { font-size: 9px; opacity: 0.6; }
+
+  .action-btn.learn-btn {
+    background: rgba(107,191,103,0.85);
+    border-color: rgba(255,255,255,0.3);
+  }
+  .action-btn.learn-btn:hover { background: rgba(107,191,103,1); }
+
+  /* ========= MODAL OVERLAY ========= */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    backdrop-filter: blur(4px);
+    z-index: 500;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .modal-overlay.open { display: flex; }
+
+  .modal {
+    background: white;
+    border-radius: 24px;
+    max-width: 440px;
+    width: 100%;
+    max-height: 85vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    position: relative;
+    animation: modalIn 0.3s ease;
+  }
+  @keyframes modalIn {
+    from { transform: scale(0.9) translateY(20px); opacity: 0; }
+    to { transform: scale(1) translateY(0); opacity: 1; }
+  }
+  .modal-close {
+    position: absolute;
+    top: 12px; right: 14px;
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    border: none;
+    background: #f0f0f0;
+    font-size: 18px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    transition: background 0.15s;
+  }
+  .modal-close:hover { background: #ddd; }
+
+  .modal-header {
+    padding: 24px 24px 16px;
+    text-align: center;
+  }
+  .modal-header .mh-icon { font-size: 48px; display: block; margin-bottom: 8px; }
+  .modal-header h2 {
+    font-family: 'Baloo 2', cursive;
+    font-size: 22px;
+    font-weight: 800;
+    color: #333;
+  }
+  .modal-header p { font-size: 13px; color: #888; margin-top: 4px; }
+
+  .modal-body { padding: 0 24px 24px; }
+
+  /* ========= INTRO MODAL ========= */
+  .seeds-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin: 16px 0;
+  }
+  .seed-card {
+    background: var(--cream);
+    border-radius: 16px;
+    padding: 14px 10px;
+    border: 2.5px solid transparent;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+    box-shadow: 0 3px 0 rgba(0,0,0,0.1);
+  }
+  .seed-card:hover { transform: translateY(-2px); }
+  .seed-card.selected { border-color: var(--green-mid); background: #e8fae8; box-shadow: 0 3px 0 var(--green-mid); }
+  .seed-card .sc-icon { font-size: 36px; display: block; margin-bottom: 4px; }
+  .seed-card .sc-name { font-size: 13px; font-weight: 800; color: #333; }
+  .seed-card .sc-sub { font-size: 10px; color: #999; }
+
+  /* ========= TOPIC MODAL ========= */
+  .topic-list { display: flex; flex-direction: column; gap: 10px; }
+  .topic-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: var(--cream);
+    border-radius: 16px;
+    padding: 16px;
+    border: 2.5px solid transparent;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 3px 0 rgba(0,0,0,0.08);
+  }
+  .topic-card:hover { transform: translateY(-2px); }
+  .topic-card .tc-icon { font-size: 32px; flex-shrink: 0; }
+  .topic-card .tc-name { font-size: 15px; font-weight: 800; color: #333; }
+  .topic-card .tc-desc { font-size: 11px; color: #888; margin-top: 2px; }
+  .topic-card.gen { border-color: var(--yellow); }
+  .topic-card.lang { border-color: var(--blue); }
+  .topic-card.code { border-color: var(--purple); }
+
+  /* ========= PILL MODAL ========= */
+  .pill-header-bar {
+    padding: 16px 20px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .pill-header-bar.gen { background: linear-gradient(135deg, #fffacd, #ffe066); }
+  .pill-header-bar.lang { background: linear-gradient(135deg, #daeeff, #b3d9ff); }
+  .pill-header-bar.code { background: linear-gradient(135deg, #eedcff, #d4aaff); }
+  .pill-header-bar .ph-icon { font-size: 32px; }
+  .pill-header-bar .ph-cat { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; opacity: 0.6; }
+  .pill-header-bar .ph-title { font-family: 'Baloo 2', cursive; font-size: 18px; font-weight: 800; color: #333; }
+  .pill-body {
+    padding: 20px;
+    font-size: 14px;
+    line-height: 1.75;
+    color: #444;
+  }
+  .pill-body strong { color: var(--green-dark); }
+  .pill-body .highlight {
+    display: inline-block;
+    background: var(--yellow);
+    padding: 1px 6px;
+    border-radius: 6px;
+    font-weight: 700;
+    color: #5a4000;
+  }
+  .pill-footer {
+    text-align: center;
+    padding: 12px 20px 20px;
+  }
+
+  /* ========= QUIZ MODAL ========= */
+  .quiz-progress { display: flex; gap: 6px; justify-content: center; margin-bottom: 16px; }
+  .qp-dot {
+    width: 12px; height: 12px; border-radius: 50%;
+    background: #ddd; transition: all 0.3s;
+  }
+  .qp-dot.done { background: var(--green-mid); transform: scale(1.1); }
+  .qp-dot.current { background: var(--yellow-dark); transform: scale(1.3); box-shadow: 0 0 0 3px rgba(245,196,0,0.3); }
+
+  .q-card {
+    background: #f7faff;
+    border: 2.5px solid var(--blue);
+    border-radius: 16px;
+    padding: 18px;
+    margin-bottom: 14px;
+  }
+  .q-num { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--blue-dark); margin-bottom: 6px; }
+  .q-text { font-size: 15px; font-weight: 700; color: #333; line-height: 1.5; }
+
+  .answers { display: flex; flex-direction: column; gap: 8px; }
+  .ans-btn {
+    background: var(--cream);
+    border: 2.5px solid #e0e0e0;
+    border-radius: 14px;
+    padding: 12px 14px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: #444;
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .ans-btn:hover:not(:disabled) { border-color: var(--blue-dark); background: #eaf4ff; }
+  .ans-btn .ans-letter {
+    width: 26px; height: 26px; border-radius: 50%;
+    background: #eee;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 800; flex-shrink: 0;
+    transition: all 0.2s;
+  }
+  .ans-btn.correct { background: #e8ffee; border-color: var(--green-mid); }
+  .ans-btn.correct .ans-letter { background: var(--green-mid); color: white; }
+  .ans-btn.wrong { background: #fff0f3; border-color: var(--pink-dark); }
+  .ans-btn.wrong .ans-letter { background: var(--pink-dark); color: white; }
+  .ans-btn:disabled { cursor: not-allowed; }
+
+  .fb-bar {
+    border-radius: 12px;
+    padding: 10px 14px;
+    font-size: 13px;
+    font-weight: 700;
+    display: none;
+    align-items: center;
+    gap: 8px;
+    margin-top: 12px;
+  }
+  .fb-bar.show { display: flex; }
+  .fb-bar.correct { background: #e8ffee; color: var(--green-dark); border: 2px solid var(--green-soft); }
+  .fb-bar.wrong { background: #fff0f3; color: #c0394d; border: 2px solid var(--pink); }
+
+  /* ========= REWARD MODAL ========= */
+  .reward-emoji { font-size: 64px; display: block; margin-bottom: 8px; }
+  .reward-items {
+    display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;
+    margin: 16px 0;
+  }
+  .reward-item {
+    background: var(--cream);
+    border: 2px solid #eee;
+    border-radius: 14px;
+    padding: 8px 14px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #555;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    animation: popIn 0.4s ease backwards;
+  }
+  @keyframes popIn {
+    from { transform: scale(0); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+  .reward-item:nth-child(1) { animation-delay: 0.1s; }
+  .reward-item:nth-child(2) { animation-delay: 0.2s; }
+  .reward-item:nth-child(3) { animation-delay: 0.3s; }
+  .reward-item:nth-child(4) { animation-delay: 0.4s; }
+
+  /* ========= PLANT SELECT MODAL ========= */
+  .inventory-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+    margin-top: 12px;
+  }
+  .inv-item {
+    background: var(--cream);
+    border: 2.5px solid #e0e0e0;
+    border-radius: 16px;
+    padding: 14px 8px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .inv-item:hover { border-color: var(--green-mid); transform: translateY(-2px); }
+  .inv-item.placed { opacity: 0.4; cursor: not-allowed; }
+  .inv-item .inv-icon { font-size: 36px; display: block; margin-bottom: 4px; }
+  .inv-item .inv-name { font-size: 10px; font-weight: 700; color: #555; }
+
+  /* ========= SHOP MODAL ========= */
+  .shop-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 12px;
+  }
+  .shop-item {
+    background: var(--cream);
+    border-radius: 16px;
+    padding: 16px 10px;
+    text-align: center;
+    border: 2.5px solid #eee;
+    box-shadow: 0 3px 0 #ddd;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .shop-item:hover { transform: translateY(-2px); border-color: var(--green-mid); }
+  .shop-item.owned { border-color: var(--green-soft); background: #f0fff4; opacity: 0.6; cursor: not-allowed; }
+  .shop-item .si-icon { font-size: 40px; display: block; margin-bottom: 6px; }
+  .shop-item .si-name { font-size: 12px; font-weight: 800; color: #333; }
+  .shop-item .si-cost { font-size: 11px; color: #888; margin-top: 4px; }
+
+  /* ========= BUTTONS ========= */
+  .btn {
+    border: none;
+    border-radius: 14px;
+    padding: 13px 24px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 15px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.15s;
+    width: 100%;
+  }
+  .btn:active { transform: scale(0.97); }
+  .btn-green { background: var(--green-mid); color: white; box-shadow: 0 4px 0 var(--green-dark); }
+  .btn-green:hover { background: #5fb35a; }
+  .btn-green:disabled { background: #ccc; box-shadow: 0 4px 0 #aaa; cursor: not-allowed; }
+  .btn-yellow { background: var(--yellow); color: #5a4000; box-shadow: 0 4px 0 var(--yellow-dark); }
+  .btn-pink { background: var(--pink); color: #8b2244; box-shadow: 0 4px 0 var(--pink-dark); }
+
+  /* ========= TOAST ========= */
+  .toast {
+    position: fixed;
+    top: 60px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-20px);
+    background: rgba(0,0,0,0.8);
+    backdrop-filter: blur(8px);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 700;
+    opacity: 0;
+    transition: all 0.3s;
+    z-index: 999;
+    white-space: nowrap;
+    pointer-events: none;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* ========= CONFETTI ========= */
+  .confetti-piece {
+    position: fixed;
+    width: 10px; height: 10px;
+    border-radius: 2px;
+    pointer-events: none;
+    z-index: 9999;
+    animation: confettiFall 1.5s ease-in forwards;
+  }
+  @keyframes confettiFall {
+    0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+  }
+
+  /* ========= SPOT SELECTED GLOW ========= */
+  .spot.selected .spot-ground {
+    box-shadow: 0 0 16px rgba(255,224,102,0.7), 0 4px 0 #5a3520;
+    border-color: var(--yellow-dark);
+  }
+
+  /* ========= PATIO ZOOM/PAN ========= */
+  .patio-container { touch-action: none; }
+
+  /* Responsive */
+  @media (max-width: 600px) {
+    .patio { width: 900px; height: 700px; }
+    .spot { width: 76px; height: 76px; }
+    .spot-ground { width: 66px; height: 24px; }
+    .spot-plant { font-size: 40px; }
+    .spot-plant.stage-0 { font-size: 20px; }
+    .spot-plant.stage-1 { font-size: 30px; }
+    .spot-plant.stage-2 { font-size: 40px; }
+    .spot-plant.stage-3 { font-size: 48px; }
+  }
+</style>
+</head>
+<body>
+
+<div id="app">
+  <!-- Resource bar -->
+  <div class="top-bar" id="top-bar" style="display:none">
+    <div class="res-pill"><span class="ri">💧</span><span id="r-water">0</span></div>
+    <div class="res-pill"><span class="ri">🌿</span><span id="r-fert">0</span></div>
+    <div class="res-pill"><span class="ri">☀️</span><span id="r-sun">0</span></div>
+    <div class="res-pill"><span class="ri">⭐</span><span id="r-pts">0</span></div>
+  </div>
+
+  <!-- Patio -->
+  <div class="patio-container" id="patio-container">
+    <div class="patio" id="patio">
+      <div class="patio-grass"></div>
+
+      <!-- Fence top -->
+      <div class="fence" id="fence-top"></div>
+
+      <!-- Decorations -->
+      <div class="deco" style="top:90px;left:40px">🦋</div>
+      <div class="deco" style="top:70px;right:50px;font-size:22px">🐦</div>
+      <div class="deco" style="bottom:40px;left:30px;font-size:32px">🪨</div>
+      <div class="deco" style="bottom:30px;right:40px;font-size:24px">🍂</div>
+      <div class="deco" style="top:45%;left:10px;font-size:36px">🌳</div>
+      <div class="deco" style="top:35%;right:15px;font-size:38px">🌳</div>
+      <div class="deco" style="bottom:100px;right:80px;font-size:20px">🐌</div>
+      <div class="deco" style="top:40%;left:85%;font-size:22px">🐝</div>
+
+      <!-- Stone path at bottom -->
+      <div class="stone-path">
+        <div class="stone"></div>
+        <div class="stone"></div>
+        <div class="stone"></div>
+        <div class="stone"></div>
+        <div class="stone"></div>
+      </div>
+
+      <!-- Plant spots will be injected here -->
+    </div>
+  </div>
+
+  <!-- Action bar -->
+  <div class="action-bar" id="action-bar" style="display:none">
+    <button class="action-btn learn-btn" onclick="openTopicModal()">
+      <span class="ab-icon">📚</span>
+      <span class="ab-label">Aprender</span>
+    </button>
+    <button class="action-btn" onclick="doWater()" id="btn-water">
+      <span class="ab-icon">💧</span>
+      <span class="ab-label">Regar</span>
+      <span class="ab-cost">-3💧</span>
+    </button>
+    <button class="action-btn" onclick="doFert()" id="btn-fert">
+      <span class="ab-icon">🌿</span>
+      <span class="ab-label">Abonar</span>
+      <span class="ab-cost">-2🌿</span>
+    </button>
+    <button class="action-btn" onclick="doSun()" id="btn-sun">
+      <span class="ab-icon">☀️</span>
+      <span class="ab-label">Sol</span>
+      <span class="ab-cost">-1☀️</span>
+    </button>
+    <button class="action-btn" onclick="openShopModal()">
+      <span class="ab-icon">🛍️</span>
+      <span class="ab-label">Tienda</span>
+    </button>
+  </div>
+</div>
+
+<!-- Modal overlay -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal" id="modal-content"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ===== STATE =====
+const G = {
+  plants: [],        // { id, emoji, name, stage, growthPts, spotIdx }
+  inventory: [],     // { emoji, name } — plants you own but haven't placed
+  resources: { water: 5, fert: 3, pts: 0, sun: 2 },
+  spots: [],         // 12 spots, each { x, y, plantId: null }
+  currentTopic: null,
+  currentPill: null,
+  currentQuiz: [],
+  currentQ: 0,
+  score: 0,
+  shopOwned: [],
+  nextId: 1,
+  selectedSpot: null,
+  started: false
+};
+
+// ===== SPOT LAYOUT =====
+// 12 spots arranged in a nice patio grid (3 rows x 4 cols roughly)
+const SPOT_POSITIONS = [
+  // Row 1
+  { x: 180, y: 140 }, { x: 340, y: 120 }, { x: 500, y: 130 }, { x: 660, y: 140 },
+  // Row 2
+  { x: 140, y: 310 }, { x: 310, y: 290 }, { x: 480, y: 300 }, { x: 650, y: 310 },
+  // Row 3
+  { x: 200, y: 480 }, { x: 370, y: 460 }, { x: 540, y: 470 }, { x: 700, y: 480 },
+];
+
+// ===== DATA =====
+const PILLS = {
+  gen: [
+    {
+      title: "La Gran Muralla China",
+      icon: "🏯",
+      body: `La <strong>Gran Muralla China</strong> tiene más de <span class="highlight">21.000 km</span> de longitud. Fue construida a lo largo de varios siglos, principalmente durante la <strong>Dinastía Ming</strong> (1368–1644). Contrariamente al mito popular, <strong>no</strong> puede verse desde el espacio a simple vista.`,
+      questions: [
+        { q: "¿Cuántos km mide aproximadamente la Gran Muralla China?", opts: ["5.000 km","21.000 km","10.000 km","50.000 km"], ans: 1 },
+        { q: "¿Durante qué dinastía se construyó la mayor parte?", opts: ["Han","Tang","Ming","Qing"], ans: 2 },
+        { q: "¿Puede verse desde el espacio a simple vista?", opts: ["Sí","No","Solo de noche","Solo en invierno"], ans: 1 }
+      ]
+    },
+    {
+      title: "El Sistema Solar",
+      icon: "🪐",
+      body: `Nuestro <strong>Sistema Solar</strong> tiene <span class="highlight">8 planetas</span>. Plutón fue reclasificado como planeta enano en 2006. El más grande es <strong>Júpiter</strong> y el más pequeño <strong>Mercurio</strong>. La <strong>Tierra</strong> es el tercer planeta desde el Sol.`,
+      questions: [
+        { q: "¿Cuántos planetas tiene el Sistema Solar?", opts: ["7","8","9","10"], ans: 1 },
+        { q: "¿Cuál es el planeta más grande?", opts: ["Saturno","Urano","Júpiter","Neptuno"], ans: 2 },
+        { q: "¿En qué posición está la Tierra desde el Sol?", opts: ["1ª","2ª","3ª","4ª"], ans: 2 }
+      ]
+    },
+    {
+      title: "Antiguo Egipto",
+      icon: "🏛️",
+      body: `La civilización del <strong>Antiguo Egipto</strong> duró más de <span class="highlight">3.000 años</span>. La <strong>Gran Pirámide de Giza</strong> fue la estructura más alta del mundo durante casi 4.000 años. Los egipcios inventaron los <strong>jeroglíficos</strong> y usaban el río <strong>Nilo</strong> como fuente de vida.`,
+      questions: [
+        { q: "¿Cuántos años duró la civilización del Antiguo Egipto?", opts: ["500","1.000","3.000","5.000"], ans: 2 },
+        { q: "¿Qué río era fundamental para los egipcios?", opts: ["Éufrates","Nilo","Tigris","Amazonas"], ans: 1 },
+        { q: "¿Qué sistema de escritura inventaron?", opts: ["Cuneiforme","Alfabeto","Jeroglíficos","Rúnico"], ans: 2 }
+      ]
+    },
+    {
+      title: "El Cuerpo Humano",
+      icon: "🫀",
+      body: `El cuerpo humano tiene <span class="highlight">206 huesos</span> en la edad adulta. El corazón late unas <strong>100.000 veces al día</strong>. El <strong>cerebro</strong> usa el 20% de la energía del cuerpo. El hueso más largo es el <strong>fémur</strong> y el más pequeño el <strong>estribo</strong> (en el oído).`,
+      questions: [
+        { q: "¿Cuántos huesos tiene un adulto?", opts: ["150","206","300","180"], ans: 1 },
+        { q: "¿Cuántas veces late el corazón al día aprox.?", opts: ["10.000","50.000","100.000","200.000"], ans: 2 },
+        { q: "¿Cuál es el hueso más largo del cuerpo?", opts: ["Húmero","Tibia","Fémur","Radio"], ans: 2 }
+      ]
+    }
+  ],
+  lang: [
+    {
+      title: "Phrasal Verbs Esenciales",
+      icon: "🗣️",
+      body: `Los <strong>phrasal verbs</strong> son combinaciones de verbo + preposición:<br><br>
+      🔹 <span class="highlight">Give up</span> → Rendirse<br>
+      🔹 <span class="highlight">Look up</span> → Buscar (en diccionario)<br>
+      🔹 <span class="highlight">Run into</span> → Encontrarse por casualidad<br>
+      🔹 <span class="highlight">Put off</span> → Posponer`,
+      questions: [
+        { q: "'Give up' significa:", opts: ["Dar arriba","Rendirse","Buscar","Aparecer"], ans: 1 },
+        { q: "'I ran into my friend' significa:", opts: ["Corrí hacia mi amigo","Empujé a mi amigo","Me encontré con mi amigo","Llamé a mi amigo"], ans: 2 },
+        { q: "'Put off the meeting' significa:", opts: ["Cancelar la reunión","Posponer la reunión","Organizar la reunión","Ir a la reunión"], ans: 1 }
+      ]
+    },
+    {
+      title: "False Friends",
+      icon: "🤝",
+      body: `Los <strong>false friends</strong> son palabras que parecen iguales pero no lo son:<br><br>
+      🔹 <span class="highlight">Embarrassed</span> → avergonzado (NO embarazada)<br>
+      🔹 <span class="highlight">Actually</span> → en realidad (NO actualmente)<br>
+      🔹 <span class="highlight">Library</span> → biblioteca (NO librería)<br>
+      🔹 <span class="highlight">Sympathetic</span> → comprensivo (NO simpático)`,
+      questions: [
+        { q: "'I'm embarrassed' significa:", opts: ["Estoy embarazada","Estoy avergonzado/a","Estoy cansado/a","Estoy feliz"], ans: 1 },
+        { q: "'Actually' en español es:", opts: ["Actualmente","Ahora mismo","En realidad","Por fin"], ans: 2 },
+        { q: "'Library' es:", opts: ["Librería","Biblioteca","Libre","Libro"], ans: 1 }
+      ]
+    },
+    {
+      title: "Conectores en Inglés",
+      icon: "🔗",
+      body: `Los <strong>conectores</strong> unen ideas:<br><br>
+      🔹 <span class="highlight">However</span> → Sin embargo<br>
+      🔹 <span class="highlight">Therefore</span> → Por lo tanto<br>
+      🔹 <span class="highlight">Although</span> → Aunque<br>
+      🔹 <span class="highlight">Moreover</span> → Además`,
+      questions: [
+        { q: "'However' significa:", opts: ["Como sea","Sin embargo","Además","Por lo tanto"], ans: 1 },
+        { q: "'Therefore' se traduce como:", opts: ["Para eso","Sin embargo","Por lo tanto","Aunque"], ans: 2 },
+        { q: "'Although' significa:", opts: ["También","Aunque","Además","Entonces"], ans: 1 }
+      ]
+    }
+  ],
+  code: [
+    {
+      title: "JavaScript: Arrays",
+      icon: "💻",
+      body: `Un <strong>array</strong> es una lista de valores:<br><br>
+      <code style="background:#f0f0f0;padding:2px 6px;border-radius:4px">const plantas = ['🌸','🌵','🌻'];</code><br><br>
+      🔹 <span class="highlight">.push()</span> → añade al final<br>
+      🔹 <span class="highlight">.pop()</span> → elimina el último<br>
+      🔹 <span class="highlight">.length</span> → número de elementos<br>
+      🔹 <span class="highlight">.map()</span> → transforma cada elemento`,
+      questions: [
+        { q: "¿Qué hace .push() en un array?", opts: ["Elimina el primero","Añade al final","Ordena","Busca"], ans: 1 },
+        { q: "¿Cómo obtener el número de elementos?", opts: [".count()",".size",".length",".total"], ans: 2 },
+        { q: "¿Qué hace .map()?", opts: ["Ordena","Elimina duplicados","Transforma cada elemento","Filtra"], ans: 2 }
+      ]
+    },
+    {
+      title: "CSS Flexbox",
+      icon: "🎨",
+      body: `<strong>Flexbox</strong> es un sistema de layout en CSS:<br><br>
+      🔹 <span class="highlight">display: flex</span> → activa flexbox<br>
+      🔹 <span class="highlight">justify-content</span> → alinea en eje horizontal<br>
+      🔹 <span class="highlight">align-items</span> → alinea en eje vertical<br>
+      🔹 <span class="highlight">flex-direction</span> → row o column`,
+      questions: [
+        { q: "¿Qué activa flexbox?", opts: ["layout: flex","display: flex","position: flex","flex: true"], ans: 1 },
+        { q: "justify-content alinea en:", opts: ["Eje vertical","Eje horizontal","Ambos","Ninguno"], ans: 1 },
+        { q: "¿Qué valor de flex-direction hace columna?", opts: ["row","horizontal","column","vertical"], ans: 2 }
+      ]
+    },
+    {
+      title: "Variables en Python",
+      icon: "🐍",
+      body: `En <strong>Python</strong> las variables no necesitan declarar tipo:<br><br>
+      🔹 <span class="highlight">nombre = "Ana"</span> → string<br>
+      🔹 <span class="highlight">edad = 25</span> → integer<br>
+      🔹 <span class="highlight">precio = 9.99</span> → float<br>
+      🔹 <span class="highlight">activo = True</span> → boolean (mayúscula!)`,
+      questions: [
+        { q: "En Python, ¿necesitas declarar el tipo de variable?", opts: ["Sí, siempre","No","Solo strings","Solo números"], ans: 1 },
+        { q: "¿Cómo se escribe un booleano verdadero en Python?", opts: ["true","TRUE","True","1"], ans: 2 },
+        { q: "precio = 9.99 es de tipo:", opts: ["int","string","float","double"], ans: 2 }
+      ]
+    }
+  ]
+};
+
+const SHOP_ITEMS = [
+  { id: 'tulip', icon: '🌷', name: 'Tulipán', cost: 10 },
+  { id: 'mushroom', icon: '🍄', name: 'Seta', cost: 8 },
+  { id: 'bamboo', icon: '🎋', name: 'Bambú', cost: 12 },
+  { id: 'lotus', icon: '🪷', name: 'Loto', cost: 15 },
+  { id: 'maple', icon: '🍁', name: 'Arce', cost: 20 },
+  { id: 'fern', icon: '🌿', name: 'Helecho', cost: 6 },
+  { id: 'bonsai', icon: '🌲', name: 'Bonsái', cost: 25 },
+  { id: 'palm', icon: '🌴', name: 'Palmera', cost: 18 },
+];
+
+const STAGE_EMOJIS = ['🌱', '🪴', '🌿']; // stage 0,1,2 — stage 3 = own emoji (full bloom)
+
+// ===== INIT =====
+function init() {
+  // Create spot data
+  SPOT_POSITIONS.forEach((pos, i) => {
+    G.spots.push({ x: pos.x, y: pos.y, plantId: null });
+  });
+  buildFence();
+  // On mobile, adjust patio scale
+  adjustPatio();
+  window.addEventListener('resize', adjustPatio);
+  // Show intro
+  openIntroModal();
+}
+
+function adjustPatio() {
+  const container = document.getElementById('patio-container');
+  const patio = document.getElementById('patio');
+  const cw = container.clientWidth;
+  const ch = container.clientHeight;
+  const pw = parseInt(patio.style.width || getComputedStyle(patio).width);
+  const ph = parseInt(patio.style.height || getComputedStyle(patio).height);
+  const scale = Math.min(cw / pw, ch / ph, 1);
+  patio.style.transform = `translate(-50%, -50%) scale(${scale})`;
+}
+
+function buildFence() {
+  const fence = document.getElementById('fence-top');
+  const count = 8;
+  for (let i = 0; i < count; i++) {
+    fence.appendChild(Object.assign(document.createElement('div'), { className: 'fence-post' }));
+    if (i < count - 1) fence.appendChild(Object.assign(document.createElement('div'), { className: 'fence-rail' }));
+  }
+}
+
+// ===== RENDER SPOTS =====
+function renderSpots() {
+  // Remove old spots
+  document.querySelectorAll('.spot').forEach(s => s.remove());
+  const patio = document.getElementById('patio');
+
+  G.spots.forEach((spot, idx) => {
+    const div = document.createElement('div');
+    div.className = 'spot' + (spot.plantId ? '' : ' spot-empty') + (G.selectedSpot === idx ? ' selected' : '');
+    div.style.left = spot.x + 'px';
+    div.style.top = spot.y + 'px';
+    div.onclick = () => onSpotClick(idx);
+
+    if (spot.plantId) {
+      const plant = G.plants.find(p => p.id === spot.plantId);
+      if (plant) {
+        const stageClass = 'stage-' + Math.min(plant.stage, 3);
+        const displayEmoji = plant.stage >= 3 ? plant.emoji : STAGE_EMOJIS[plant.stage];
+        div.innerHTML = `
+          <div class="spot-plant ${stageClass}">${displayEmoji}</div>
+          <div class="spot-ground"></div>
+          <div class="spot-label">${plant.name}</div>
+          <div class="spot-level">${'⭐'.repeat(Math.min(plant.stage + 1, 4))}</div>
+        `;
+      }
+    } else {
+      div.innerHTML = `
+        <div class="spot-plus">+</div>
+        <div class="spot-ground"></div>
+      `;
+    }
+    patio.appendChild(div);
+  });
+}
+
+function onSpotClick(idx) {
+  const spot = G.spots[idx];
+  if (spot.plantId) {
+    // Show plant info
+    G.selectedSpot = idx;
+    renderSpots();
+    const plant = G.plants.find(p => p.id === spot.plantId);
+    showToast(`${plant.emoji} ${plant.name} — Nivel ${plant.stage + 1}`);
+  } else {
+    // Open plant selection to place here
+    G.selectedSpot = idx;
+    openPlantSelectModal(idx);
+  }
+}
+
+// ===== RESOURCES =====
+function updateRes() {
+  document.getElementById('r-water').textContent = G.resources.water;
+  document.getElementById('r-fert').textContent = G.resources.fert;
+  document.getElementById('r-sun').textContent = G.resources.sun;
+  document.getElementById('r-pts').textContent = G.resources.pts;
+  updateActionBtns();
+  save();
+}
+
+function updateActionBtns() {
+  document.getElementById('btn-water').disabled = G.resources.water < 3 || !hasPlacedPlants();
+  document.getElementById('btn-fert').disabled = G.resources.fert < 2 || !hasPlacedPlants();
+  document.getElementById('btn-sun').disabled = G.resources.sun < 1 || !hasPlacedPlants();
+}
+
+function hasPlacedPlants() {
+  return G.spots.some(s => s.plantId !== null);
+}
+
+// ===== GARDEN ACTIONS =====
+function doWater() {
+  if (G.resources.water < 3) return;
+  G.resources.water -= 3;
+  growAllPlants(15);
+  animateOnPlants('💧');
+  updateRes();
+  showToast('💧 ¡Regando tus plantas!');
+}
+function doFert() {
+  if (G.resources.fert < 2) return;
+  G.resources.fert -= 2;
+  growAllPlants(20);
+  animateOnPlants('🌿');
+  updateRes();
+  showToast('🌿 ¡Abonando! Súper crecimiento');
+}
+function doSun() {
+  if (G.resources.sun < 1) return;
+  G.resources.sun -= 1;
+  growAllPlants(10);
+  animateOnPlants('☀️');
+  updateRes();
+  showToast('☀️ ¡Sol para tus plantas!');
+}
+
+function growAllPlants(pts) {
+  let grew = false;
+  G.plants.forEach(p => {
+    const spot = G.spots.find(s => s.plantId === p.id);
+    if (!spot) return; // not placed
+    p.growthPts += pts;
+    if (p.stage < 3) {
+      const threshold = [30, 60, 100][p.stage];
+      if (p.growthPts >= threshold) {
+        p.stage++;
+        p.growthPts = 0;
+        grew = true;
+      }
+    }
+  });
+  if (grew) {
+    confetti();
+    showToast('🌟 ¡Una planta ha crecido!');
+  }
+  renderSpots();
+}
+
+function animateOnPlants(emoji) {
+  G.spots.forEach(spot => {
+    if (!spot.plantId) return;
+    const el = document.createElement('div');
+    el.className = 'water-anim';
+    el.textContent = emoji;
+    el.style.left = (spot.x + 35) + 'px';
+    el.style.top = (spot.y) + 'px';
+    document.getElementById('patio').appendChild(el);
+    setTimeout(() => el.remove(), 700);
+  });
+}
+
+// ===== MODALS =====
+function openModal(html) {
+  document.getElementById('modal-content').innerHTML = html;
+  document.getElementById('modal-overlay').classList.add('open');
+}
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('open');
+}
+
+// ===== INTRO =====
+let introSeeds = [];
+function openIntroModal() {
+  const seeds = [
+    { emoji: '🌸', name: 'Cerezo' },
+    { emoji: '🌵', name: 'Cactus' },
+    { emoji: '🌻', name: 'Girasol' },
+    { emoji: '🌹', name: 'Rosa' },
+    { emoji: '🌺', name: 'Hibisco' },
+    { emoji: '🪻', name: 'Lavanda' },
+  ];
+  introSeeds = [];
+  openModal(`
+    <div class="modal-header">
+      <span class="mh-icon">🌱</span>
+      <h2>¡Bienvenid@ a Jardín Sabio!</h2>
+      <p>Aprende, responde preguntas y cultiva tu patio.<br>Elige tus <strong>3 semillas</strong> iniciales:</p>
+    </div>
+    <div class="modal-body">
+      <div class="seeds-grid" id="intro-seeds">
+        ${seeds.map((s, i) => `
+          <div class="seed-card" onclick="toggleIntroSeed(${i},'${s.emoji}','${s.name}')" id="iseed-${i}">
+            <span class="sc-icon">${s.emoji}</span>
+            <span class="sc-name">${s.name}</span>
+          </div>
+        `).join('')}
+      </div>
+      <button class="btn btn-green" id="btn-intro-start" onclick="startGame()" disabled>
+        🌱 ¡Empezar!
+      </button>
+      <p style="text-align:center;font-size:11px;color:#999;margin-top:8px">Elige exactamente 3 semillas</p>
+    </div>
+  `);
+}
+
+function toggleIntroSeed(i, emoji, name) {
+  const card = document.getElementById('iseed-' + i);
+  const idx = introSeeds.findIndex(s => s.emoji === emoji);
+  if (idx >= 0) {
+    introSeeds.splice(idx, 1);
+    card.classList.remove('selected');
+  } else if (introSeeds.length < 3) {
+    introSeeds.push({ emoji, name });
+    card.classList.add('selected');
+  } else {
+    showToast('¡Solo 3 semillas!');
+  }
+  document.getElementById('btn-intro-start').disabled = introSeeds.length !== 3;
+}
+
+function startGame() {
+  // Add seeds to inventory
+  introSeeds.forEach(s => {
+    G.inventory.push({ emoji: s.emoji, name: s.name });
+  });
+  G.started = true;
+  document.getElementById('top-bar').style.display = 'flex';
+  document.getElementById('action-bar').style.display = 'flex';
+  updateRes();
+  renderSpots();
+  closeModal();
+  showToast('🌱 ¡Toca un hueco para plantar tus semillas!');
+}
+
+// ===== PLANT SELECT (when clicking empty spot) =====
+function openPlantSelectModal(spotIdx) {
+  const placedIds = new Set();
+  // Track which inventory items are placed by finding matches
+  // Each inventory item can be placed once
+  const availableInventory = [];
+  const placedEmojis = {};
+  G.spots.forEach(s => {
+    if (s.plantId) {
+      const p = G.plants.find(pl => pl.id === s.plantId);
+      if (p) placedEmojis[p.emoji] = (placedEmojis[p.emoji] || 0) + 1;
+    }
+  });
+  const invCount = {};
+  G.inventory.forEach(inv => {
+    const key = inv.emoji;
+    invCount[key] = (invCount[key] || 0) + 1;
+  });
+
+  // Available = inventory count - placed count
+  const available = [];
+  const seen = {};
+  G.inventory.forEach(inv => {
+    const key = inv.emoji;
+    if (!seen[key]) {
+      seen[key] = true;
+      const total = invCount[key] || 0;
+      const placed = placedEmojis[key] || 0;
+      const free = total - placed;
+      if (free > 0) {
+        available.push({ ...inv, count: free });
+      }
+    }
+  });
+
+  if (available.length === 0) {
+    showToast('No tienes plantas disponibles. ¡Aprende para ganar más!');
+    return;
+  }
+
+  openModal(`
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div class="modal-header">
+      <span class="mh-icon">🌱</span>
+      <h2>Elige qué plantar</h2>
+      <p>Selecciona una planta para este hueco</p>
+    </div>
+    <div class="modal-body">
+      <div class="inventory-grid">
+        ${available.map(inv => `
+          <div class="inv-item" onclick="placePlant(${spotIdx},'${inv.emoji}','${inv.name}')">
+            <span class="inv-icon">${inv.emoji}</span>
+            <span class="inv-name">${inv.name}${inv.count > 1 ? ' (x' + inv.count + ')' : ''}</span>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `);
+}
+
+function placePlant(spotIdx, emoji, name) {
+  const plant = { id: G.nextId++, emoji, name, stage: 0, growthPts: 0 };
+  G.plants.push(plant);
+  G.spots[spotIdx].plantId = plant.id;
+  closeModal();
+  renderSpots();
+  updateActionBtns();
+  showToast(`${emoji} ${name} plantado!`);
+  // Sparkle animation
+  const spot = G.spots[spotIdx];
+  for (let i = 0; i < 5; i++) {
+    const sp = document.createElement('div');
+    sp.className = 'sparkle';
+    sp.textContent = '✨';
+    sp.style.left = (spot.x + 30 + (Math.random() - 0.5) * 40) + 'px';
+    sp.style.top = (spot.y + 20 + (Math.random() - 0.5) * 30) + 'px';
+    sp.style.animationDelay = (Math.random() * 0.3) + 's';
+    document.getElementById('patio').appendChild(sp);
+    setTimeout(() => sp.remove(), 1000);
+  }
+  save();
+}
+
+// ===== TOPIC =====
+function openTopicModal() {
+  openModal(`
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div class="modal-header">
+      <span class="mh-icon">📚</span>
+      <h2>¿Qué aprendemos hoy?</h2>
+    </div>
+    <div class="modal-body">
+      <div class="topic-list">
+        <div class="topic-card gen" onclick="selectTopic('gen')">
+          <div class="tc-icon">🌍</div>
+          <div>
+            <div class="tc-name">Cultura General</div>
+            <div class="tc-desc">Historia, ciencia, geografía…</div>
+          </div>
+        </div>
+        <div class="topic-card lang" onclick="selectTopic('lang')">
+          <div class="tc-icon">🗣️</div>
+          <div>
+            <div class="tc-name">Idiomas</div>
+            <div class="tc-desc">Inglés: vocabulario, gramática, expresiones</div>
+          </div>
+        </div>
+        <div class="topic-card code" onclick="selectTopic('code')">
+          <div class="tc-icon">💻</div>
+          <div>
+            <div class="tc-name">Programación</div>
+            <div class="tc-desc">JavaScript, Python, CSS…</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `);
+}
+
+function selectTopic(topic) {
+  G.currentTopic = topic;
+  const pills = PILLS[topic];
+  G.currentPill = pills[Math.floor(Math.random() * pills.length)];
+  showPillModal();
+}
+
+function showPillModal() {
+  const p = G.currentPill;
+  const t = G.currentTopic;
+  const catLabel = { gen: '🌍 Cultura General', lang: '🗣️ Idiomas', code: '💻 Programación' }[t];
+  openModal(`
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div class="pill-header-bar ${t}">
+      <span class="ph-icon">${p.icon}</span>
+      <div>
+        <div class="ph-cat">${catLabel}</div>
+        <div class="ph-title">${p.title}</div>
+      </div>
+    </div>
+    <div class="pill-body">${p.body}</div>
+    <div class="pill-footer">
+      <button class="btn btn-yellow" onclick="startQuiz()">
+        ✏️ ¡Responder preguntas!
+      </button>
+    </div>
+  `);
+}
+
+// ===== QUIZ =====
+function startQuiz() {
+  G.currentQuiz = [...G.currentPill.questions];
+  G.currentQ = 0;
+  G.score = 0;
+  showQuizModal();
+}
+
+function showQuizModal() {
+  const total = G.currentQuiz.length;
+  const q = G.currentQuiz[G.currentQ];
+  const letters = ['A', 'B', 'C', 'D'];
+  openModal(`
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div style="padding:20px 24px 0">
+      <div class="quiz-progress">
+        ${G.currentQuiz.map((_, i) => {
+          let cls = '';
+          if (i < G.currentQ) cls = 'done';
+          else if (i === G.currentQ) cls = 'current';
+          return `<div class="qp-dot ${cls}"></div>`;
+        }).join('')}
+      </div>
+    </div>
+    <div style="padding:16px 24px">
+      <div class="q-card">
+        <div class="q-num">Pregunta ${G.currentQ + 1} / ${total}</div>
+        <div class="q-text">${q.q}</div>
+      </div>
+      <div class="answers" id="quiz-answers">
+        ${q.opts.map((opt, i) => `
+          <button class="ans-btn" onclick="answerQ(${i})" id="ans-${i}">
+            <span class="ans-letter">${letters[i]}</span>
+            <span>${opt}</span>
+          </button>
+        `).join('')}
+      </div>
+      <div class="fb-bar" id="fb-bar">
+        <span id="fb-icon"></span>
+        <span id="fb-text"></span>
+      </div>
+      <div style="margin-top:12px">
+        <button class="btn btn-green" id="btn-next-q" onclick="nextQ()" style="display:none">
+          Siguiente →
+        </button>
+      </div>
+    </div>
+  `);
+}
+
+function answerQ(idx) {
+  const q = G.currentQuiz[G.currentQ];
+  const btns = document.querySelectorAll('.ans-btn');
+  btns.forEach(b => b.disabled = true);
+  const correct = idx === q.ans;
+  document.getElementById('ans-' + idx).classList.add(correct ? 'correct' : 'wrong');
+  if (!correct) document.getElementById('ans-' + q.ans).classList.add('correct');
+
+  const fb = document.getElementById('fb-bar');
+  if (correct) {
+    G.score++;
+    fb.className = 'fb-bar correct show';
+    document.getElementById('fb-icon').textContent = '🎉';
+    document.getElementById('fb-text').textContent = '¡Correcto! +recursos';
+  } else {
+    fb.className = 'fb-bar wrong show';
+    document.getElementById('fb-icon').textContent = '😿';
+    document.getElementById('fb-text').textContent = '¡Incorrecto! Lee la píldora de nuevo';
+  }
+  document.getElementById('btn-next-q').style.display = 'block';
+}
+
+function nextQ() {
+  G.currentQ++;
+  if (G.currentQ >= G.currentQuiz.length) {
+    finishQuiz();
+  } else {
+    showQuizModal();
+  }
+}
+
+function finishQuiz() {
+  const total = G.currentQuiz.length;
+  const sc = G.score;
+  const reward = { water: 0, fert: 0, pts: 0, sun: 0 };
+  if (sc === total) {
+    reward.water = 6; reward.fert = 4; reward.pts = 15; reward.sun = 3;
+  } else if (sc >= total - 1) {
+    reward.water = 4; reward.fert = 2; reward.pts = 8; reward.sun = 1;
+  } else if (sc >= 1) {
+    reward.water = 2; reward.fert = 1; reward.pts = 3; reward.sun = 0;
+  }
+  G.resources.water += reward.water;
+  G.resources.fert += reward.fert;
+  G.resources.pts += reward.pts;
+  G.resources.sun += reward.sun;
+  updateRes();
+
+  const perfect = sc === total;
+  const emoji = perfect ? '🏆' : sc >= total - 1 ? '🌟' : sc >= 1 ? '👍' : '😿';
+  const title = perfect ? '¡Perfecto!' : sc >= total - 1 ? '¡Casi perfecto!' : sc >= 1 ? '¡Bien!' : '¡Sigue intentando!';
+
+  const rewardHtml = (reward.water || reward.fert || reward.pts || reward.sun)
+    ? `<div class="reward-items">
+        ${reward.water ? `<div class="reward-item"><span>💧</span> +${reward.water}</div>` : ''}
+        ${reward.fert ? `<div class="reward-item"><span>🌿</span> +${reward.fert}</div>` : ''}
+        ${reward.pts ? `<div class="reward-item"><span>⭐</span> +${reward.pts}</div>` : ''}
+        ${reward.sun ? `<div class="reward-item"><span>☀️</span> +${reward.sun}</div>` : ''}
+      </div>`
+    : '<p style="color:#888;font-size:13px;margin:16px 0">Sin recompensas esta vez 😿</p>';
+
+  if (perfect) confetti();
+
+  openModal(`
+    <div class="modal-header">
+      <span class="reward-emoji">${emoji}</span>
+      <h2>${title}</h2>
+      <p>${sc}/${total} correctas</p>
+    </div>
+    <div class="modal-body" style="text-align:center">
+      ${rewardHtml}
+      <button class="btn btn-green" onclick="closeModal()" style="margin-top:8px">
+        🌺 ¡Volver al jardín!
+      </button>
+      <button class="btn btn-yellow" onclick="openTopicModal()" style="margin-top:8px">
+        📚 Aprender más
+      </button>
+    </div>
+  `);
+}
+
+// ===== SHOP =====
+function openShopModal() {
+  openModal(`
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div class="modal-header">
+      <span class="mh-icon">🛍️</span>
+      <h2>Tienda</h2>
+      <p>Gasta tus ⭐ para comprar nuevas plantas</p>
+    </div>
+    <div class="modal-body">
+      <div class="shop-grid">
+        ${SHOP_ITEMS.map(item => {
+          const owned = G.shopOwned.includes(item.id);
+          return `
+            <div class="shop-item ${owned ? 'owned' : ''}" onclick="${owned ? '' : `buyItem('${item.id}')`}">
+              <span class="si-icon">${item.icon}</span>
+              <div class="si-name">${item.name}</div>
+              ${owned
+                ? '<div style="font-size:11px;color:var(--green-dark);font-weight:700;margin-top:4px">✅ Comprado</div>'
+                : `<div class="si-cost">⭐ ${item.cost} pts</div>`
+              }
+            </div>
+          `;
+        }).join('')}
+      </div>
+    </div>
+  `);
+}
+
+function buyItem(id) {
+  const item = SHOP_ITEMS.find(s => s.id === id);
+  if (!item) return;
+  if (G.shopOwned.includes(id)) return;
+  if (G.resources.pts < item.cost) {
+    showToast(`Necesitas ${item.cost}⭐`);
+    return;
+  }
+  G.resources.pts -= item.cost;
+  G.shopOwned.push(id);
+  G.inventory.push({ emoji: item.icon, name: item.name });
+  updateRes();
+  confetti();
+  showToast(`${item.icon} ¡${item.name} comprado!`);
+  openShopModal(); // refresh
+}
+
+// ===== HELPERS =====
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+function confetti() {
+  const colors = ['#FFB3C6','#FFE066','#A8D5A2','#B3D9FF','#D4AAFF','#FFCCA5'];
+  for (let i = 0; i < 20; i++) {
+    const el = document.createElement('div');
+    el.className = 'confetti-piece';
+    el.style.cssText = `
+      left:${Math.random()*100}vw; top:0;
+      background:${colors[Math.floor(Math.random()*colors.length)]};
+      width:${6+Math.random()*8}px; height:${6+Math.random()*8}px;
+      animation-delay:${Math.random()*0.5}s;
+      animation-duration:${1+Math.random()}s;
+      border-radius:${Math.random()>0.5?'50%':'2px'};
+    `;
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 2000);
+  }
+}
+
+// ===== PERSISTENCE =====
+function save() {
+  try {
+    localStorage.setItem('jardin-sabio', JSON.stringify({
+      plants: G.plants,
+      inventory: G.inventory,
+      resources: G.resources,
+      spots: G.spots,
+      shopOwned: G.shopOwned,
+      nextId: G.nextId,
+      started: G.started
+    }));
+  } catch(e) {}
+}
+
+function load() {
+  try {
+    const d = JSON.parse(localStorage.getItem('jardin-sabio'));
+    if (d && d.started) {
+      G.plants = d.plants || [];
+      G.inventory = d.inventory || [];
+      G.resources = d.resources || G.resources;
+      G.spots = d.spots || G.spots;
+      G.shopOwned = d.shopOwned || [];
+      G.nextId = d.nextId || 1;
+      G.started = true;
+      document.getElementById('top-bar').style.display = 'flex';
+      document.getElementById('action-bar').style.display = 'flex';
+      updateRes();
+      renderSpots();
+      return true;
+    }
+  } catch(e) {}
+  return false;
+}
+
+// ===== PAN/ZOOM (simple drag on patio) =====
+let dragging = false, dragStart = {x:0,y:0}, patioOffset = {x:0,y:0};
+document.getElementById('patio-container').addEventListener('pointerdown', e => {
+  if (e.target.closest('.spot') || e.target.closest('.action-btn')) return;
+  dragging = true;
+  dragStart = { x: e.clientX - patioOffset.x, y: e.clientY - patioOffset.y };
+  e.target.setPointerCapture?.(e.pointerId);
+});
+document.addEventListener('pointermove', e => {
+  if (!dragging) return;
+  patioOffset.x = e.clientX - dragStart.x;
+  patioOffset.y = e.clientY - dragStart.y;
+  const patio = document.getElementById('patio');
+  const base = patio.style.transform.match(/scale\([^)]+\)/)?.[0] || 'scale(1)';
+  patio.style.transform = `translate(calc(-50% + ${patioOffset.x}px), calc(-50% + ${patioOffset.y}px)) ${base}`;
+});
+document.addEventListener('pointerup', () => { dragging = false; });
+
+// ===== START =====
+if (!load()) {
+  init();
+} else {
+  buildFence();
+  adjustPatio();
+  window.addEventListener('resize', adjustPatio);
+}
+</script>
+</body>
+</html>
