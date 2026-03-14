@@ -1,0 +1,85 @@
+{
+  "app": {
+    "name": "Loratu"
+  },
+  "onboarding": {
+    "welcome": "¡Bienvenid@ a Loratu!",
+    "subtitle": "Aprende, responde y cultiva tu patio andaluz",
+    "chooseSeeds": "Elige tus 3 semillas iniciales",
+    "pickExactly": "Elige exactamente 3",
+    "start": "¡Empezar!",
+    "onlyThree": "¡Solo puedes elegir 3!"
+  },
+  "tabs": {
+    "patio": "Patio",
+    "learn": "Aprender",
+    "shop": "Tienda"
+  },
+  "patio": {
+    "tapToPlant": "Toca una maceta vacía para plantar",
+    "planted": "¡{{name}} plantado!",
+    "plantLevel": "{{name}} — Nivel {{level}}",
+    "noPlants": "No tienes plantas disponibles. ¡Aprende para ganar más!",
+    "choosePlant": "Elige qué plantar"
+  },
+  "resources": {
+    "water": "Agua",
+    "fertilizer": "Abono",
+    "sun": "Sol",
+    "points": "Puntos"
+  },
+  "actions": {
+    "water": "Regar",
+    "fertilize": "Abonar",
+    "sun": "Sol",
+    "watering": "¡Regando tus plantas!",
+    "fertilizing": "¡Abonando! Súper crecimiento",
+    "sunning": "¡Sol para tus plantas!",
+    "plantGrew": "¡Una planta ha crecido!"
+  },
+  "learn": {
+    "title": "¿Qué aprendemos hoy?",
+    "general": "Cultura General",
+    "generalDesc": "Historia, ciencia, geografía…",
+    "language": "Idiomas",
+    "languageDesc": "Inglés: vocabulario, gramática",
+    "programming": "Programación",
+    "programmingDesc": "JavaScript, Python, CSS…",
+    "answerQuestions": "¡Responder!",
+    "question": "Pregunta {{current}} / {{total}}",
+    "correct": "¡Correcto!",
+    "incorrect": "¡Incorrecto!",
+    "next": "Siguiente",
+    "perfect": "¡Perfecto!",
+    "almost": "¡Casi perfecto!",
+    "good": "¡Bien!",
+    "keepTrying": "¡Sigue intentando!",
+    "correctCount": "{{count}}/{{total}} correctas",
+    "noRewards": "Sin recompensas esta vez",
+    "backToGarden": "¡Al jardín!",
+    "learnMore": "Aprender más"
+  },
+  "shop": {
+    "title": "Tienda",
+    "subtitle": "Gasta tus puntos en nuevas plantas",
+    "bought": "¡{{name}} comprado!",
+    "needPoints": "Necesitas {{cost}} puntos",
+    "owned": "Comprado"
+  },
+  "plants": {
+    "geranium": "Geranio",
+    "cactus": "Cactus",
+    "lavender": "Lavanda",
+    "sunflower": "Girasol",
+    "jasmine": "Jazmín",
+    "bougainvillea": "Buganvilla",
+    "tulip": "Tulipán",
+    "mushroom": "Seta",
+    "bamboo": "Bambú",
+    "lotus": "Loto",
+    "olive": "Olivo",
+    "fern": "Helecho",
+    "bonsai": "Bonsái",
+    "palm": "Palmera"
+  }
+}

@@ -1,0 +1,85 @@
+{
+  "app": {
+    "name": "Loratu"
+  },
+  "onboarding": {
+    "welcome": "Welcome to Loratu!",
+    "subtitle": "Learn, answer questions and grow your Andalusian patio",
+    "chooseSeeds": "Choose your 3 starter seeds",
+    "pickExactly": "Pick exactly 3",
+    "start": "Let's go!",
+    "onlyThree": "You can only pick 3!"
+  },
+  "tabs": {
+    "patio": "Patio",
+    "learn": "Learn",
+    "shop": "Shop"
+  },
+  "patio": {
+    "tapToPlant": "Tap an empty pot to plant",
+    "planted": "{{name}} planted!",
+    "plantLevel": "{{name}} — Level {{level}}",
+    "noPlants": "No plants available. Learn to earn more!",
+    "choosePlant": "Choose what to plant"
+  },
+  "resources": {
+    "water": "Water",
+    "fertilizer": "Fertilizer",
+    "sun": "Sun",
+    "points": "Points"
+  },
+  "actions": {
+    "water": "Water",
+    "fertilize": "Fertilize",
+    "sun": "Sun",
+    "watering": "Watering your plants!",
+    "fertilizing": "Fertilizing! Super growth",
+    "sunning": "Sunshine for your plants!",
+    "plantGrew": "A plant has grown!"
+  },
+  "learn": {
+    "title": "What shall we learn today?",
+    "general": "General Knowledge",
+    "generalDesc": "History, science, geography…",
+    "language": "Languages",
+    "languageDesc": "English: vocabulary, grammar",
+    "programming": "Programming",
+    "programmingDesc": "JavaScript, Python, CSS…",
+    "answerQuestions": "Answer!",
+    "question": "Question {{current}} / {{total}}",
+    "correct": "Correct!",
+    "incorrect": "Incorrect!",
+    "next": "Next",
+    "perfect": "Perfect!",
+    "almost": "Almost perfect!",
+    "good": "Good!",
+    "keepTrying": "Keep trying!",
+    "correctCount": "{{count}}/{{total}} correct",
+    "noRewards": "No rewards this time",
+    "backToGarden": "Back to garden!",
+    "learnMore": "Learn more"
+  },
+  "shop": {
+    "title": "Shop",
+    "subtitle": "Spend your points on new plants",
+    "bought": "{{name}} purchased!",
+    "needPoints": "You need {{cost}} points",
+    "owned": "Owned"
+  },
+  "plants": {
+    "geranium": "Geranium",
+    "cactus": "Cactus",
+    "lavender": "Lavender",
+    "sunflower": "Sunflower",
+    "jasmine": "Jasmine",
+    "bougainvillea": "Bougainvillea",
+    "tulip": "Tulip",
+    "mushroom": "Mushroom",
+    "bamboo": "Bamboo",
+    "lotus": "Lotus",
+    "olive": "Olive tree",
+    "fern": "Fern",
+    "bonsai": "Bonsai",
+    "palm": "Palm"
+  }
+}
