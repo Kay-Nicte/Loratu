@@ -1,183 +1,251 @@
-import { View, Text, StyleSheet, Pressable } from 'react-native';
+import { useState, useCallback } from 'react';
+import { View, Text, StyleSheet, Pressable, Modal, ScrollView } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors, spacing, radius } from '../../constants/theme';
 import { useGameStore } from '../../stores/gameStore';
 import { CARE_COSTS } from '../../constants/gameConfig';
+import { getSpecies } from '../../constants/plants';
 import ResourceBar from '../../components/patio/ResourceBar';
+import PatioCanvas from '../../components/patio/PatioCanvas';
 
 export default function PatioScreen() {
   const { t } = useTranslation();
   const resources = useGameStore(s => s.resources);
   const spots = useGameStore(s => s.spots);
   const plants = useGameStore(s => s.plants);
+  const inventory = useGameStore(s => s.inventory);
+  const placePlant = useGameStore(s => s.placePlant);
   const waterPlants = useGameStore(s => s.waterPlants);
   const fertilizePlants = useGameStore(s => s.fertilizePlants);
   const sunPlants = useGameStore(s => s.sunPlants);
 
+  const [modalSpot, setModalSpot] = useState<number | null>(null);
+
   const hasPlanted = spots.some(s => s.plantId !== null);
+
+  // Unique available species from inventory (not already placed)
+  const availableSpecies = useCallback(() => {
+    // Count how many of each species are in inventory
+    const invCount: Record<string, number> = {};
+    inventory.forEach(id => { invCount[id] = (invCount[id] || 0) + 1; });
+
+    // Count how many of each are placed
+    const placedCount: Record<string, number> = {};
+    plants.forEach(p => {
+      if (spots.some(s => s.plantId === p.id)) {
+        placedCount[p.speciesId] = (placedCount[p.speciesId] || 0) + 1;
+      }
+    });
+
+    // Available = in inventory but not yet placed
+    const result: Array<{ speciesId: string; count: number }> = [];
+    const seen = new Set<string>();
+    inventory.forEach(id => {
+      if (seen.has(id)) return;
+      seen.add(id);
+      const free = (invCount[id] || 0);
+      if (free > 0) result.push({ speciesId: id, count: free });
+    });
+    return result;
+  }, [inventory, plants, spots]);
+
+  const handleSpotPress = useCallback((spotIndex: number) => {
+    const spot = spots[spotIndex];
+    if (spot?.plantId) {
+      // Plant info (future: open detail modal)
+      const plant = plants.find(p => p.id === spot.plantId);
+      if (plant) {
+        const species = getSpecies(plant.speciesId);
+        // For now just a simple feedback — later wire to plant/[id] modal
+      }
+    } else {
+      // Open plant selection
+      setModalSpot(spotIndex);
+    }
+  }, [spots, plants]);
+
+  const handlePlacePlant = (speciesId: string) => {
+    if (modalSpot !== null) {
+      placePlant(speciesId, modalSpot);
+      setModalSpot(null);
+    }
+  };
+
+  // Temporary emoji map for the selection modal
+  const emojiMap: Record<string, string> = {
+    geranium: '🌺', cactus: '🌵', lavender: '💜',
+    sunflower: '🌻', jasmine: '🤍', bougainvillea: '🌸',
+    tulip: '🌷', mushroom: '🍄', bamboo: '🎋', lotus: '🪷',
+    olive: '🫒', fern: '🌿', bonsai: '🌲', palm: '🌴',
+  };
 
   return (
     <LinearGradient
-      colors={[colors.skyTop, colors.skyBottom]}
+      colors={[colors.skyTop, '#B8E0F6', colors.skyBottom]}
       style={styles.container}
     >
       <ResourceBar />
 
-      {/* Patio area — placeholder until Skia is wired */}
-      <View style={styles.patioArea}>
-        <View style={styles.patio}>
-          <View style={styles.wallTop}>
-            <View style={styles.archRow}>
-              {[0, 1, 2, 3, 4].map(i => (
-                <View key={i} style={styles.arch} />
-              ))}
-            </View>
-          </View>
-          <View style={styles.floor}>
-            {/* Fountain placeholder */}
-            <View style={styles.fountain}>
-              <Text style={styles.fountainText}>⛲</Text>
-            </View>
-
-            {/* Spot placeholders */}
-            <Text style={styles.placeholderText}>
-              {t('patio.tapToPlant')}
-            </Text>
-            <Text style={styles.spotCount}>
-              {plants.length} / {spots.length} {t('tabs.patio').toLowerCase()}
-            </Text>
-          </View>
-        </View>
+      {/* Patio Canvas */}
+      <View style={styles.canvasWrap}>
+        <PatioCanvas onSpotPress={handleSpotPress} />
       </View>
 
       {/* Action buttons */}
       <View style={styles.actions}>
         <Pressable
-          style={[styles.actionBtn, !hasPlanted && styles.actionDisabled]}
+          style={[styles.ab, (!hasPlanted || resources.water < CARE_COSTS.water.water) && styles.abDisabled]}
           onPress={() => waterPlants()}
           disabled={!hasPlanted || resources.water < CARE_COSTS.water.water}
         >
-          <Text style={styles.actionIcon}>💧</Text>
-          <Text style={styles.actionLabel}>{t('actions.water')}</Text>
-          <Text style={styles.actionCost}>-{CARE_COSTS.water.water}💧</Text>
+          <Text style={styles.abIcon}>💧</Text>
+          <Text style={styles.abLabel}>{t('actions.water')}</Text>
         </Pressable>
 
         <Pressable
-          style={[styles.actionBtn, !hasPlanted && styles.actionDisabled]}
+          style={[styles.ab, (!hasPlanted || resources.fertilizer < CARE_COSTS.fertilize.fertilizer) && styles.abDisabled]}
           onPress={() => fertilizePlants()}
           disabled={!hasPlanted || resources.fertilizer < CARE_COSTS.fertilize.fertilizer}
         >
-          <Text style={styles.actionIcon}>🌿</Text>
-          <Text style={styles.actionLabel}>{t('actions.fertilize')}</Text>
-          <Text style={styles.actionCost}>-{CARE_COSTS.fertilize.fertilizer}🌿</Text>
+          <Text style={styles.abIcon}>🌿</Text>
+          <Text style={styles.abLabel}>{t('actions.fertilize')}</Text>
         </Pressable>
 
         <Pressable
-          style={[styles.actionBtn, !hasPlanted && styles.actionDisabled]}
+          style={[styles.ab, (!hasPlanted || resources.sun < CARE_COSTS.sun.sun) && styles.abDisabled]}
           onPress={() => sunPlants()}
           disabled={!hasPlanted || resources.sun < CARE_COSTS.sun.sun}
         >
-          <Text style={styles.actionIcon}>☀️</Text>
-          <Text style={styles.actionLabel}>{t('actions.sun')}</Text>
-          <Text style={styles.actionCost}>-{CARE_COSTS.sun.sun}☀️</Text>
+          <Text style={styles.abIcon}>☀️</Text>
+          <Text style={styles.abLabel}>{t('actions.sun')}</Text>
         </Pressable>
       </View>
+
+      {/* Plant selection modal */}
+      <Modal
+        visible={modalSpot !== null}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setModalSpot(null)}
+      >
+        <Pressable style={styles.modalOverlay} onPress={() => setModalSpot(null)}>
+          <View style={styles.modalSheet}>
+            <View style={styles.modalHandle} />
+            <Text style={styles.modalTitle}>{t('patio.choosePlant')}</Text>
+
+            {availableSpecies().length === 0 ? (
+              <Text style={styles.modalEmpty}>{t('patio.noPlants')}</Text>
+            ) : (
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.invRow}>
+                {availableSpecies().map(({ speciesId, count }) => {
+                  const species = getSpecies(speciesId);
+                  return (
+                    <Pressable
+                      key={speciesId}
+                      style={styles.invCard}
+                      onPress={() => handlePlacePlant(speciesId)}
+                    >
+                      <Text style={styles.invEmoji}>{emojiMap[speciesId] ?? '🌱'}</Text>
+                      <Text style={styles.invName}>
+                        {species ? t(species.nameKey) : speciesId}
+                      </Text>
+                      {count > 1 && <Text style={styles.invCount}>x{count}</Text>}
+                    </Pressable>
+                  );
+                })}
+              </ScrollView>
+            )}
+          </View>
+        </Pressable>
+      </Modal>
     </LinearGradient>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  patioArea: {
+  canvasWrap: {
     flex: 1,
-    justifyContent: 'center',
     alignItems: 'center',
-    padding: spacing.md,
-  },
-  patio: {
-    width: '100%',
-    maxWidth: 400,
-    aspectRatio: 1,
-    borderRadius: radius.lg,
-    overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.2,
-    shadowRadius: 20,
-    elevation: 8,
-  },
-  wallTop: {
-    height: 50,
-    backgroundColor: colors.wall,
-    borderBottomWidth: 3,
-    borderBottomColor: colors.wallShadow,
     justifyContent: 'center',
-    paddingHorizontal: 20,
-  },
-  archRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-evenly',
-  },
-  arch: {
-    width: 40,
-    height: 30,
-    borderWidth: 3,
-    borderBottomWidth: 0,
-    borderColor: colors.terra,
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    backgroundColor: 'rgba(135,206,235,0.3)',
-  },
-  floor: {
-    flex: 1,
-    backgroundColor: colors.tileWhite,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: spacing.lg,
-  },
-  fountain: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: colors.fountain,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: spacing.md,
-    borderWidth: 3,
-    borderColor: colors.wallShadow,
-  },
-  fountainText: { fontSize: 36 },
-  placeholderText: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: colors.textSecondary,
-    textAlign: 'center',
-  },
-  spotCount: {
-    fontSize: 12,
-    color: colors.textMuted,
-    marginTop: spacing.xs,
   },
   actions: {
     flexDirection: 'row',
     justifyContent: 'center',
-    gap: 8,
-    padding: spacing.md,
+    gap: 10,
+    paddingHorizontal: spacing.md,
     paddingBottom: spacing.sm,
+    paddingTop: spacing.xs,
   },
-  actionBtn: {
+  ab: {
     backgroundColor: 'rgba(255,253,247,0.92)',
     borderRadius: radius.lg,
-    padding: spacing.sm,
-    paddingHorizontal: spacing.md,
+    paddingVertical: 10,
+    paddingHorizontal: 18,
     alignItems: 'center',
     borderWidth: 2,
-    borderColor: 'rgba(0,0,0,0.08)',
-    minWidth: 70,
+    borderColor: 'rgba(0,0,0,0.06)',
+    minWidth: 72,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 4,
+    elevation: 2,
   },
-  actionDisabled: { opacity: 0.35 },
-  actionIcon: { fontSize: 22 },
-  actionLabel: { fontSize: 10, fontWeight: '700', color: colors.textSecondary },
-  actionCost: { fontSize: 9, color: colors.textMuted },
+  abDisabled: { opacity: 0.35 },
+  abIcon: { fontSize: 24, marginBottom: 2 },
+  abLabel: { fontSize: 11, fontWeight: '700', color: colors.textSecondary },
+
+  // Modal
+  modalOverlay: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    backgroundColor: 'rgba(0,0,0,0.3)',
+  },
+  modalSheet: {
+    backgroundColor: colors.white,
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    padding: spacing.lg,
+    paddingBottom: 40,
+  },
+  modalHandle: {
+    width: 40,
+    height: 4,
+    backgroundColor: '#ddd',
+    borderRadius: 2,
+    alignSelf: 'center',
+    marginBottom: spacing.md,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: '800',
+    color: colors.textPrimary,
+    textAlign: 'center',
+    marginBottom: spacing.md,
+  },
+  modalEmpty: {
+    fontSize: 14,
+    color: colors.textSecondary,
+    textAlign: 'center',
+    paddingVertical: spacing.lg,
+  },
+  invRow: {
+    flexDirection: 'row',
+    gap: 12,
+    paddingVertical: spacing.sm,
+  },
+  invCard: {
+    backgroundColor: '#F9F6F0',
+    borderRadius: radius.lg,
+    padding: spacing.md,
+    alignItems: 'center',
+    minWidth: 90,
+    borderWidth: 2,
+    borderColor: '#eee',
+  },
+  invEmoji: { fontSize: 40, marginBottom: 4 },
+  invName: { fontSize: 12, fontWeight: '700', color: colors.textPrimary },
+  invCount: { fontSize: 10, color: colors.textMuted, marginTop: 2 },
 });
