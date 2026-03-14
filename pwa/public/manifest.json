@@ -1,0 +1,22 @@
+{
+  "name": "Loratu",
+  "short_name": "Loratu",
+  "description": "Aprende y cultiva tu patio andaluz / Learn and grow your Andalusian patio",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FFFDF7",
+  "theme_color": "#C05621",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
